@@ -1,26 +1,42 @@
 # cmp-haptics
 
-[![JitPack](https://jitpack.io/v/govindtank/cmp-haptics.svg)](https://jitpack.io/#govindtank/cmp-haptics)
+<p align="center">
+  <a href="https://jitpack.io/#govindtank/cmp-haptics"><img src="https://jitpack.io/v/govindtank/cmp-haptics.svg?style=flat-square" alt="JitPack"></a>
+  <a href="https://github.com/govindtank/cmp-haptics/actions"><img src="https://img.shields.io/github/actions/workflow/status/govindtank/cmp-haptics/build.yml?branch=main&style=flat-square&label=build" alt="Build Status"></a>
+  <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20CMP-blue?style=flat-square" alt="Platform">
+  <img src="https://img.shields.io/badge/Kotlin-2.0.0-purple?style=flat-square" alt="Kotlin">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-green.svg?style=flat-square" alt="License"></a>
+  <a href="https://github.com/govindtank"><img src="https://img.shields.io/badge/Author-Govind%20Tank-orange?style=flat-square" alt="Author"></a>
+</p>
 
-**Modern Haptic Feedback Engine for Compose Multiplatform (Material You & CoreHaptics Sync).**
+<p align="center">
+  <b>Modern Haptic Feedback Engine for Compose Multiplatform (Material You &amp; CoreHaptics Sync).</b><br>
+  <i>Architected &amp; Crafted with ❤️ by <a href="https://github.com/govindtank">Govind Tank</a></i>
+</p>
 
-A fast, lightweight multiplatform library delivering synchronized tactile haptics across Android (VibratorManager / Material You effects) and iOS (`UIFeedbackGenerator` / CoreHaptics).
+<p align="center">
+  <img src="./screenshot.svg" width="800" alt="cmp-haptics Architecture & Visual Overview" style="border-radius: 14px;" />
+</p>
 
 ---
 
-## Features
+## ⚡ Why `cmp-haptics`?
 
+Providing nuanced physical feedback is essential for premium mobile experiences. In Compose Multiplatform:
+- **Android**: Modern devices utilize sophisticated Linear Resonant Actuators (LRA) via `VibratorManager` and predefined `VibrationEffect` constants (API 29/31+), while older devices require fallback waveforms.
+- **iOS**: Uses Apple Taptic Engine via `UIImpactFeedbackGenerator`, `UISelectionFeedbackGenerator`, and `UINotificationFeedbackGenerator`.
+
+`cmp-haptics` bridges both platforms into a **single synchronized tactile API**:
 - 🎯 **Semantic Presets**: `CLICK`, `DOUBLE_CLICK`, `TICK`, `SELECTION`, `SUCCESS`, `WARNING`, `ERROR`.
-- ⚡ **Material You & iOS Sync**: Maps seamlessly to Android 12+ predefined vibration constants and iOS Taptic Engine feedback.
-- 🎛️ **Custom Vibration Patterns**: Support for multi-phase waveform patterns with timings & amplitudes.
-- 🎨 **Compose Modifiers**: 1-line `.hapticClickable { }` modifier for any Compose element.
-- 🪶 **Zero Overhead**: Direct platform API calls with zero third-party runtime baggage.
+- ⚡ **Physical Strengths**: `LIGHT_IMPACT`, `MEDIUM_IMPACT`, `HEAVY_IMPACT`, `RIGID_IMPACT`, `SOFT_IMPACT`.
+- 🎛️ **Custom Vibration Waveforms**: Timings + amplitude control (`HapticPattern`).
+- 🎨 **1-Line Compose Modifier**: Attach `.hapticClickable { }` to any composable.
 
 ---
 
-## Installation
+## 📦 Installation
 
-Add the JitPack repository and dependency to your `build.gradle.kts`:
+Add JitPack and the dependency to your `build.gradle.kts`:
 
 ```kotlin
 repositories {
@@ -34,11 +50,14 @@ dependencies {
 
 ---
 
-## Quick Start
+## 🚀 Quick Start
 
-### 1. Android Initialization (in MainActivity)
+### 1. Android Initialization (`MainActivity.kt`)
 
 ```kotlin
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import io.github.govindtank.haptics.hapticInit
 
 class MainActivity : ComponentActivity() {
@@ -53,24 +72,29 @@ class MainActivity : ComponentActivity() {
 }
 ```
 
-### 2. Using in Compose UI
+### 2. Compose UI Usage
 
 ```kotlin
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import io.github.govindtank.haptics.*
 
 @Composable
-fun HapticShowcase() {
+fun HapticShowcaseScreen() {
     val hapticManager = rememberHapticManager()
 
-    Column {
-        // Option 1: Direct via manager
+    Column(modifier = Modifier.padding(16.dp)) {
+        // 1. Direct Trigger via HapticManager
         Button(onClick = {
             hapticManager.perform(HapticFeedbackType.SUCCESS)
         }) {
-            Text("Success Haptic")
+            Text("Trigger Success Haptic")
         }
+
+        Spacer(Modifier.height(8.dp))
 
         Button(onClick = {
             hapticManager.perform(HapticFeedbackType.HEAVY_IMPACT)
@@ -78,13 +102,29 @@ fun HapticShowcase() {
             Text("Heavy Impact")
         }
 
-        // Option 2: Composable Modifier
+        Spacer(Modifier.height(16.dp))
+
+        // 2. Composable Modifier
         Card(
             modifier = Modifier.hapticClickable(type = HapticFeedbackType.SELECTION) {
-                // Card tapped with selection haptic
+                println("Card clicked with selection haptic!")
             }
         ) {
-            Text("Tap Card")
+            Text("Interactive Card with Built-in Haptics", modifier = Modifier.padding(16.dp))
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        // 3. Custom Waveform Pattern
+        Button(onClick = {
+            hapticManager.performPattern(
+                HapticPattern(
+                    timings = longArrayOf(0, 50, 50, 100),
+                    amplitudes = intArrayOf(0, 150, 0, 255)
+                )
+            )
+        }) {
+            Text("Custom Waveform Pattern")
         }
     }
 }
@@ -92,27 +132,27 @@ fun HapticShowcase() {
 
 ---
 
-## Semantic Haptic Mappings
+## 🎯 Semantic Haptic Mapping Matrix
 
-| Preset | Android Effect | iOS Feedback Generator |
+| Preset | Android System Action | iOS UIKit / CoreHaptics Engine |
 | :--- | :--- | :--- |
-| `CLICK` | `EFFECT_CLICK` (API 29+) | `UIImpactFeedbackGenerator(Medium)` |
-| `DOUBLE_CLICK` | `EFFECT_DOUBLE_CLICK` | 2x `UIImpactFeedbackGenerator` |
-| `TICK` / `SELECTION` | `EFFECT_TICK` | `UISelectionFeedbackGenerator` |
-| `LIGHT_IMPACT` | `EFFECT_TICK` (15ms one-shot) | `UIImpactFeedbackGenerator(Light)` |
-| `MEDIUM_IMPACT` | `EFFECT_CLICK` (30ms one-shot)| `UIImpactFeedbackGenerator(Medium)` |
-| `HEAVY_IMPACT` | `EFFECT_HEAVY_CLICK` (50ms) | `UIImpactFeedbackGenerator(Heavy)` |
-| `RIGID_IMPACT` | Sharp 25ms one-shot | `UIImpactFeedbackGenerator(Rigid)` |
-| `SOFT_IMPACT` | Subtle 20ms one-shot | `UIImpactFeedbackGenerator(Soft)` |
-| `SUCCESS` | Custom 2-pulse waveform | `UINotificationFeedbackGenerator(Success)` |
-| `WARNING` | Custom 2-pulse waveform | `UINotificationFeedbackGenerator(Warning)` |
-| `ERROR` | Custom 3-pulse waveform | `UINotificationFeedbackGenerator(Error)` |
+| `CLICK` | `VibrationEffect.EFFECT_CLICK` | `UIImpactFeedbackGenerator(Medium)` |
+| `DOUBLE_CLICK` | `VibrationEffect.EFFECT_DOUBLE_CLICK` | Dual `UIImpactFeedbackGenerator` |
+| `TICK` / `SELECTION` | `VibrationEffect.EFFECT_TICK` | `UISelectionFeedbackGenerator` |
+| `LIGHT_IMPACT` | Quick 15ms pulse (amplitude 100) | `UIImpactFeedbackGenerator(Light)` |
+| `MEDIUM_IMPACT` | 30ms pulse (amplitude 180) | `UIImpactFeedbackGenerator(Medium)` |
+| `HEAVY_IMPACT` | `VibrationEffect.EFFECT_HEAVY_CLICK` (50ms) | `UIImpactFeedbackGenerator(Heavy)` |
+| `RIGID_IMPACT` | Sharp 25ms pulse (amplitude 240) | `UIImpactFeedbackGenerator(Rigid)` |
+| `SOFT_IMPACT` | Subtle 20ms pulse (amplitude 80) | `UIImpactFeedbackGenerator(Soft)` |
+| `SUCCESS` | Synchronized 2-pulse status wave | `UINotificationFeedbackGenerator(Success)` |
+| `WARNING` | Synchronized 2-pulse status wave | `UINotificationFeedbackGenerator(Warning)` |
+| `ERROR` | Synchronized 3-pulse urgent wave | `UINotificationFeedbackGenerator(Error)` |
 
 ---
 
-## Permissions (Android)
+## 🔒 Android Permissions
 
-Add the vibration permission to your `AndroidManifest.xml`:
+Add the vibration permission in your app's `AndroidManifest.xml`:
 
 ```xml
 <uses-permission android:name="android.permission.VIBRATE" />
@@ -120,6 +160,41 @@ Add the vibration permission to your `AndroidManifest.xml`:
 
 ---
 
-## License
+## 💖 Support & Sponsorship
 
-Apache License 2.0
+If you love using this library in your Compose Multiplatform apps, please consider sponsoring or supporting continuous development:
+
+<p align="left">
+  <a href="https://www.patreon.com/govindtank"><img src="https://img.shields.io/badge/Patreon-Support%20Creator-F96854?style=for-the-badge&logo=patreon&logoColor=white" alt="Patreon"></a>
+  <a href="https://github.com/sponsors/govindtank"><img src="https://img.shields.io/badge/GitHub%20Sponsors-Sponsor-EA4AAA?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Sponsors"></a>
+  <a href="https://buymeacoffee.com/govindtank"><img src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee"></a>
+</p>
+
+- **Patreon**: [patreon.com/govindtank](https://www.patreon.com/govindtank)
+- **GitHub Sponsors**: [github.com/sponsors/govindtank](https://github.com/sponsors/govindtank)
+- **Buy Me a Coffee**: [buymeacoffee.com/govindtank](https://buymeacoffee.com/govindtank)
+
+Your sponsorship fuels new multiplatform libraries, timely OS updates, and open-source tooling!
+
+---
+
+## 👨💻 Author
+
+**Govind Tank**
+- **GitHub**: [@govindtank](https://github.com/govindtank)
+- **Website**: [govindtank.github.io](https://govindtank.github.io)
+- **LinkedIn**: [linkedin.com/in/govind-tank](https://linkedin.com/in/govind-tank)
+
+---
+
+## 📄 License
+
+```
+Copyright 2026 Govind Tank
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+```
