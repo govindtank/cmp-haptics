@@ -1,5 +1,6 @@
 package io.github.govindtank.haptics
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.CombinedVibration
@@ -28,6 +29,7 @@ private fun getVibrator(): Vibrator? {
     }
 }
 
+@SuppressLint("MissingPermission")
 actual fun performHapticFeedback(type: HapticFeedbackType) {
     val vibrator = getVibrator() ?: return
     if (!vibrator.hasVibrator()) return
@@ -100,6 +102,7 @@ actual fun performHapticFeedback(type: HapticFeedbackType) {
     }
 }
 
+@SuppressLint("MissingPermission")
 actual fun performHapticPattern(pattern: HapticPattern) {
     val vibrator = getVibrator() ?: return
     if (!vibrator.hasVibrator()) return
@@ -117,6 +120,7 @@ actual fun performHapticPattern(pattern: HapticPattern) {
     }
 }
 
+@SuppressLint("MissingPermission")
 actual fun cancelHaptic() {
     val vibrator = getVibrator() ?: return
     vibrator.cancel()
